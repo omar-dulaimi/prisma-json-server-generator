@@ -9,6 +9,7 @@ mkdir package
 
 echo "Copying files..."
 cp -r lib package/lib
+cp -r src/lowdb package/lib
 cp package.json README.md LICENSE package
 
 echo "Making package.json public..."
