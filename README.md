@@ -27,6 +27,7 @@
 - [Usage](#usage)
 - [Additional Options](#additional-options)
 - [Community](#community)
+- [Acknowledgement](#acknowledgement)
 
 # About The Project
 
@@ -111,3 +112,7 @@ generator json_server {
 ```
 # Community
 [![Stargazers repo roster for @omar-dulaimi/prisma-json-server-generator](https://reporoster.com/stars/omar-dulaimi/prisma-json-server-generator)](https://github.com/omar-dulaimi/prisma-json-server-generator/stargazers)
+
+# Acknowledgement 
+
+Source of one of the icons used in making the logo: <a href="https://www.flaticon.com/free-icons/json" title="json icons">Json icons created by Smashicons - Flaticon</a>
