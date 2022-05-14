@@ -3,8 +3,7 @@ generator client {
 }
 
 generator json_server {
-  provider       = "node ./lib/generator.js"
-  withMiddleware = false
+  provider = "node ./lib/generator.js"
 }
 
 datasource db {

@@ -3,6 +3,8 @@ import { parseEnvValue } from '@prisma/sdk';
 import { EnvValue, GeneratorOptions } from '@prisma/generator-helper';
 import { promises as fs } from 'fs';
 import path from 'path';
+import low from 'lowdb';
+import FileSync from 'lowdb/adapters/FileSync';
 import removeDir from './utils/removeDir';
 import { configSchema } from './config';
 
@@ -22,4 +24,13 @@ export async function generate(options: GeneratorOptions) {
   );
   const prismaClientDmmf = (await import(prismaClientPath))
     .dmmf as PrismaDMMF.Document;
+  const adapter = new FileSync(path.join(outputDir, 'db.json'));
+  const db = low(adapter);
+
+  const defaultDBvalue: { [name: string]: Array<any> } = {};
+  prismaClientDmmf.mappings.modelOperations.forEach((modelOp) => {
+    defaultDBvalue[modelOp.plural as string] = [];
+  });
+
+  db.defaults(defaultDBvalue).write();
 }
