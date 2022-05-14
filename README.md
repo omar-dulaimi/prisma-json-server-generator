@@ -5,7 +5,7 @@
 
 <p align="center">
   <a href="https://github.com/omar-dulaimi/prisma-json-server-generator">
-    <img src="https://raw.githubusercontent.com/omar-dulaimi/prisma-json-server-generator/master/logo.png" alt="Logo" width="200" height="200">
+    <img src="https://raw.githubusercontent.com/omar-dulaimi/prisma-json-server-generator/master/logo.png" alt="Logo" width="120" height="120">
   </a>
   <h3 align="center">Prisma JSON Server Generator</h3>
   <p align="center">
