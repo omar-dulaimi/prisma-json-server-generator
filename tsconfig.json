@@ -10,11 +10,12 @@
     "declaration": true,
     "sourceMap": true,
     "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
     "outDir": "./lib",
     "rootDir": "./src",
     "typeRoots": ["src/types.ts"],
-    "skipLibCheck": true,
-    "experimentalDecorators": true
   },
-  "include": ["./src/**/**/*.ts"]
+  "include": ["./src/**/**/*.ts"],
+  "exclude": ["./src/lowdb"]
 }

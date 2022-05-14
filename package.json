@@ -1,13 +1,13 @@
 {
   "name": "prisma-json-server-generator",
-  "version": "0.1.0",
+  "version": "0.0.0-rc.1",
   "description": "Prisma 2+ generator to emit a JSON file that can be run with json-server",
   "repository": "https://github.com/omar-dulaimi/prisma-json-server-generator",
   "bin": {
     "prisma-json-server-generator": "lib/generator.js"
   },
   "scripts": {
-    "start": "tsc && npx prisma generate",
+    "start": "tsc && cp -r src/lowdb lib && npx prisma generate",
     "package:publish": "./package.sh && cd package && npm publish"
   },
   "author": {
@@ -32,12 +32,11 @@
     "@prisma/client": "^3.13.0",
     "@prisma/generator-helper": "^3.13.0",
     "@prisma/sdk": "^3.13.0",
-    "lowdb": "^1.0.0",
     "zod": "^3.16.0"
   },
   "devDependencies": {
+    "@faker-js/faker": "^6.3.1",
     "@types/node": "^17.0.31",
-    "@types/lowdb": "^1.0.9",
     "prisma": "^3.13.0",
     "typescript": "^4.6.4"
   },
