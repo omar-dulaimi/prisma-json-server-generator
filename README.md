@@ -55,6 +55,7 @@ Using yarn:
 ```prisma
 generator json_server {
   provider       = "prisma-json-server-generator"
+  outputFileName = "jsonFile.json"
 }
 ```
 
@@ -64,7 +65,7 @@ generator json_server {
 npm install -g json-server
 ```
 
-4- Running `npx prisma generate` for the following schema.prisma
+4- Run `npx prisma generate` for the following schema.prisma, or your schema
 
 ```prisma
 model User {
@@ -98,6 +99,7 @@ json-server --watch db.json
 | Option           |  Description                                                 | Type      |  Default      |
 | ---------------- | ------------------------------------------------------------ | --------- | ------------- |
 | `output`         | Output directory for the generated JSON server file          | `string`  | `./generated` |
+| `outputFileName` | JSON output file name                                        | `string`  | `db.json`     |
 
 Use additional options in the `schema.prisma`
 
