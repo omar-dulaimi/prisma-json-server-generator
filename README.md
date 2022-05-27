@@ -62,7 +62,7 @@ Using yarn:
 ```prisma
 generator json_server {
   provider       = "prisma-json-server-generator"
-  outputFileName = "jsonFile.json"
+  outputFileName = "db.json"
 }
 ```
 
@@ -101,12 +101,14 @@ model Post {
 json-server --watch db.json
 ```
 
+![JSON Server Running](https://raw.githubusercontent.com/omar-dulaimi/prisma-zod-generator/master/jsonServerRunning.png)
+
 # Additional Options
 
-| Option           |  Description                                                 | Type      |  Default      |
-| ---------------- | ------------------------------------------------------------ | --------- | ------------- |
-| `output`         | Output directory for the generated JSON server file          | `string`  | `./generated` |
-| `outputFileName` | JSON output file name                                        | `string`  | `db.json`     |
+| Option           |  Description                                        | Type     |  Default      |
+| ---------------- | --------------------------------------------------- | -------- | ------------- |
+| `output`         | Output directory for the generated JSON server file | `string` | `./generated` |
+| `outputFileName` | JSON output file name                               | `string` | `db.json`     |
 
 Use additional options in the `schema.prisma`
 
@@ -116,9 +118,11 @@ generator json_server {
   output         = "./json-server"
 }
 ```
+
 # Community
+
 [![Stargazers repo roster for @omar-dulaimi/prisma-json-server-generator](https://reporoster.com/stars/omar-dulaimi/prisma-json-server-generator)](https://github.com/omar-dulaimi/prisma-json-server-generator/stargazers)
 
-# Acknowledgement 
+# Acknowledgement
 
 Source of one of the icons used in making the logo: <a href="https://www.flaticon.com/free-icons/json" title="json icons">Json icons created by Smashicons - Flaticon</a>
