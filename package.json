@@ -1,6 +1,6 @@
 {
   "name": "prisma-json-server-generator",
-  "version": "0.0.0-rc.6",
+  "version": "0.1.0",
   "description": "Prisma 2+ generator to emit a JSON file that can be run with json-server",
   "repository": "https://github.com/omar-dulaimi/prisma-json-server-generator",
   "bin": {
@@ -23,22 +23,17 @@
     "prisma-json-server-generator"
   ],
   "license": "MIT",
-  "peerDependencies": {
-    "@prisma/client": "~3.13.0",
-    "prisma": "~3.13.0",
-    "tslib": "^2.4.0"
-  },
   "dependencies": {
-    "@prisma/client": "^3.13.0",
-    "@prisma/generator-helper": "^3.13.0",
-    "@prisma/sdk": "^3.13.0",
-    "zod": "^3.16.0",
-    "@faker-js/faker": "^6.3.1"
+    "@prisma/client": "^3.14.0",
+    "@prisma/generator-helper": "^3.14.0",
+    "@prisma/sdk": "^3.14.0",
+    "zod": "^3.17.3",
+    "@faker-js/faker": "^7.1.0"
   },
   "devDependencies": {
-    "@types/node": "^17.0.31",
-    "prisma": "^3.13.0",
-    "typescript": "^4.6.4"
+    "@types/node": "^17.0.35",
+    "prisma": "^3.14.0",
+    "typescript": "^4.7.2"
   },
   "bugs": {
     "url": "https://github.com/omar-dulaimi/prisma-json-server-generator/issues"
