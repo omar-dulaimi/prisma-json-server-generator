@@ -101,7 +101,7 @@ model Post {
 json-server --watch db.json
 ```
 
-![JSON Server Running](https://raw.githubusercontent.com/omar-dulaimi/prisma-zod-generator/master/jsonServerRunning.png)
+![JSON Server Running](https://raw.githubusercontent.com/omar-dulaimi/prisma-json-server-generator/master/jsonServerRunning.png)
 
 # Additional Options
 
