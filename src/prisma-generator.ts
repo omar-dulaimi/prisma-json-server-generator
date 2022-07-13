@@ -1,5 +1,5 @@
-import { DMMF as PrismaDMMF } from '@prisma/client/runtime';
-import { parseEnvValue } from '@prisma/sdk';
+import { parseEnvValue, getDMMF } from '@prisma/internals';
+import type { DMMF as PrismaDMMF } from '@prisma/generator-helper';
 import { EnvValue, GeneratorOptions } from '@prisma/generator-helper';
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -21,11 +21,12 @@ export async function generate(options: GeneratorOptions) {
   const prismaClientProvider = options.otherGenerators.find(
     (it) => parseEnvValue(it.provider) === 'prisma-client-js',
   );
-  const prismaClientPath = parseEnvValue(
-    prismaClientProvider?.output as EnvValue,
-  );
-  const prismaClientDmmf = (await import(prismaClientPath))
-    .dmmf as PrismaDMMF.Document;
+
+  const prismaClientDmmf = await getDMMF({
+    datamodel: options.datamodel,
+    previewFeatures: prismaClientProvider?.previewFeatures,
+  });
+
   const adapter = new JSONFileSync(path.join(outputDir, config.outputFileName));
   const db = new LowSync(adapter);
   const defaultDBvalue: DefaultAdapter = {};
