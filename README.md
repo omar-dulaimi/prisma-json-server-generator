@@ -29,6 +29,7 @@
 ## Table of Contents
 
 - [About The Project](#about-the-project)
+- [Supported Prisma Versions](#supported-prisma-versions)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Additional Options](#additional-options)
@@ -38,6 +39,18 @@
 # About The Project
 
 Automatically generate a JSON file that can be run as a server from your [Prisma](https://github.com/prisma/prisma) Schema. Updates every time `npx prisma generate` runs.
+
+# Supported Prisma Versions
+
+Probably no breaking changes for this library, so try newer versions first.
+
+### Prisma 4
+
+- 0.2.0 and higher
+
+### Prisma 2/3
+
+- 0.1.2 and lower
 
 # Installation
 
