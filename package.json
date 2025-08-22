@@ -1,14 +1,17 @@
 {
   "name": "prisma-json-server-generator",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Prisma 2+ generator to emit a JSON file that can be run with json-server",
   "repository": "https://github.com/omar-dulaimi/prisma-json-server-generator",
   "bin": {
     "prisma-json-server-generator": "lib/generator.js"
   },
   "scripts": {
-    "start": "tsc && cp -r src/lowdb lib && npx prisma generate",
-    "package:publish": "./package.sh && cd package && npm publish"
+    "gen-example": "tsc && cp -r src/lowdb lib && npx prisma generate",
+    "package:publish": "./package.sh && cd package && npm publish",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage"
   },
   "author": {
     "name": "Omar Dulaimi",
@@ -24,16 +27,17 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@prisma/client": "^4.0.0",
-    "@prisma/generator-helper": "^4.0.0",
-    "@prisma/internals": "^4.0.0",
-    "zod": "^3.17.3",
-    "@faker-js/faker": "^7.3.0"
+    "@faker-js/faker": "^9.9.0",
+    "@prisma/client": "^6.14.0",
+    "@prisma/generator-helper": "^6.14.0",
+    "@prisma/internals": "^6.14.0",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
-    "@types/node": "^18.0.3",
-    "prisma": "^4.0.0",
-    "typescript": "^4.7.4"
+    "@types/node": "^24.3.0",
+    "prisma": "^6.14.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
   },
   "bugs": {
     "url": "https://github.com/omar-dulaimi/prisma-json-server-generator/issues"

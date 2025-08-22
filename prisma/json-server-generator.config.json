@@ -1,0 +1,18 @@
+{
+  "outputFileName": "db.json",
+  "recordCounts": {
+    "User": 8,
+    "Post": 20
+  },
+  "customPatterns": {
+    "User.email": "{{internet.email}}",
+    "User.name": "{{person.firstName}}",
+    "Post.title": "{{lorem.words}}",
+    "Post.content": "{{lorem.paragraphs}}"
+  },
+  "seedData": {
+    "enabled": true,
+    "seedDataPath": "./seeds/",
+    "generateAdditionalRecords": true
+  }
+}

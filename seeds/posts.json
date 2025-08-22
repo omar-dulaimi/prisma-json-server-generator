@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "createdAt": "2025-01-01T00:00:00.000Z",
+    "updatedAt": "2025-01-01T00:00:00.000Z",
+    "title": "Welcome Post",
+    "content": "This is a seed post to demonstrate the feature",
+    "published": true,
+    "viewCount": 100,
+    "authorId": 1
+  }
+]

@@ -4,6 +4,7 @@ generator client {
 
 generator json_server {
   provider = "node ./lib/generator.js"
+  config   = "./prisma/json-server-generator.config.json"
 }
 
 datasource db {
