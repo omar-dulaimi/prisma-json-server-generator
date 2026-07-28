@@ -215,7 +215,12 @@ jobs:
         # accepts, so serve it and make a real request.
         run: |
           set -euo pipefail
-          ./node_modules/.bin/json-server --watch prisma/generated/db.json --port 3123 > server.log 2>&1 &
+          # --host is explicit on purpose. json-server defaults to binding `localhost`, which on the
+          # runners resolves to IPv6 ::1 first, so it bound there and every IPv4 request to
+          # 127.0.0.1 was refused while the server looked perfectly healthy in its own log.
+          # Pinning both ends to 127.0.0.1 removes the dependency on resolution order.
+          ./node_modules/.bin/json-server --watch prisma/generated/db.json \
+            --host 127.0.0.1 --port 3123 > server.log 2>&1 &
           server=$!
           trap 'kill "$server" 2>/dev/null || true' EXIT
 
