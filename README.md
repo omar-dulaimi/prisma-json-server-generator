@@ -26,6 +26,7 @@
   <p align="center">
     <a href="#-quick-start"><strong>Quick Start</strong></a> •
     <a href="#-new-in-v030"><strong>New Features</strong></a> •
+    <a href="#-known-limitations"><strong>Limitations</strong></a> •
     <a href="#-examples"><strong>Examples</strong></a> •
     <a href="https://github.com/omar-dulaimi/prisma-json-server-generator/issues/new?template=bug_report.yml"><strong>Report Bug</strong></a> •
     <a href="https://github.com/omar-dulaimi/prisma-json-server-generator/issues/new?template=feature_request.md"><strong>Request Feature</strong></a>
@@ -41,7 +42,7 @@
 | 🔴 **Before** (Manual Setup) | 🟢 **After** (This Generator) |
 |:-----|:-----|
 | 📝 Create mock data manually | 🚀 `npx prisma generate` |
-| ✍️ Write JSON files by hand | ⚡ `json-server --watch db.json` |
+| ✍️ Write JSON files by hand | ⚡ `json-server prisma/generated/db.json` |
 | 🔧 Set up json-server manually | |
 | 🔄 Maintain data consistency | |
 | 📋 Update when schema changes | |
@@ -66,17 +67,57 @@ npm install -g json-server
 ```
 
 ### 2️⃣ Add to your Prisma schema
+
+`prisma generate` refuses to run on a schema without a `datasource` block, so a
+complete minimal `prisma/schema.prisma` looks like this. Nothing here ever
+connects to a database: the generator only reads your models.
+
+**Prisma 7:**
 ```prisma
 generator json_server {
   provider = "prisma-json-server-generator"
 }
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+  posts Post[]
+}
+
+model Post {
+  id       Int    @id @default(autoincrement())
+  title    String
+  author   User?  @relation(fields: [authorId], references: [id])
+  authorId Int?
+}
 ```
+
+**Prisma 6 and below** need a `url` on the datasource, which Prisma 7 removed:
+```prisma
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+```
+
+You do not need a client generator block. If your schema already has one
+(`prisma-client` on Prisma 7, `prisma-client-js` on Prisma 6), leave it: this
+generator runs happily next to either.
 
 ### 3️⃣ Generate & Launch
 ```bash
-npx prisma generate        # Generate data
-json-server --watch db.json --port 3001   # Launch API
+npx prisma generate                                  # Generate data
+json-server prisma/generated/db.json --port 3001     # Launch API
 ```
+
+The generator's default output directory is `./generated`, resolved relative to
+your schema file, so the data lands in `prisma/generated/db.json`. Set `output`
+on the generator block to put it somewhere else.
 
 ### 4️⃣ Start Building! 🎉
 Your REST API is now live at `http://localhost:3001`
@@ -151,12 +192,99 @@ Your REST API is now live at `http://localhost:3001`
 
 | Prisma Version | Generator Version | Status |
 |----------------|-------------------|--------|
-| **6.x (Latest)** | **0.3.0+** | ✅ **Fully Supported** |
+| **7.x (Latest)** | **next release** | ✅ **Fully Supported** |
+| **6.x** | **0.3.0+** | ✅ **Fully Supported** |
 | 5.x | 0.2.5+ | ✅ Compatible |
 | 4.x | 0.2.0 - 0.2.4 | ⚠️ Legacy |
 | 2.x/3.x | 0.1.2 and lower | ❌ Deprecated |
 
 </div>
+
+> **Prisma 7 needs a release newer than 0.3.0.** Up to and including 0.3.0 this
+> generator parsed your schema a second time using its own bundled copy of
+> Prisma 6. On a Prisma 7 schema that parse fails with
+> `P1012: Argument "url" is missing in data source block`, because Prisma 7
+> removed `url` from the datasource block. Those versions also declared
+> `requiresGenerators: ['prisma-client-js']` and so refused to run at all next to
+> Prisma 7's `prisma-client` provider.
+
+---
+
+## 🚧 Known Limitations
+
+This generator produces throwaway mock data for a local `json-server`. The
+following are real gaps, not bugs to be reported. Two escape hatches cover most
+of them: a [custom faker pattern](#-power-user-setup) replaces the default value
+for one field, and [seed data](#-seed-data-example) supplies whole records
+verbatim.
+
+### Only `Int`, `String`, `DateTime`, `Boolean` and enums are generated
+
+Fields typed `Float`, `Decimal`, `BigInt`, `Json` or `Bytes` are **silently
+omitted** from the generated records. They do not appear as `null`; the key is
+simply absent. Given this model:
+
+```prisma
+model Product {
+  id        Int     @id @default(autoincrement())
+  name      String
+  price     Float
+  cost      Decimal
+  serial    BigInt
+  metadata  Json
+  thumbnail Bytes
+  inStock   Boolean
+}
+```
+
+you get records with only `id`, `name` and `inStock`. A `price` on a product is
+exactly the sort of field you would want in mock data, so set it explicitly. A
+custom pattern is checked before the field's type is looked at, so this brings
+the dropped field back:
+
+```json
+{
+  "customPatterns": {
+    "Product.price": "{{commerce.price}}"
+  }
+}
+```
+
+### Collection names are pluralised by appending `s`
+
+The endpoint name is the lowercased model name with an `s` stuck on the end.
+There is no real pluraliser, so `Category` becomes `/categorys`, `Person`
+becomes `/persons` and `Status` becomes `/statuss`. Models that already end in
+`s` get a second one. Name your models so that the naive plural reads correctly,
+or expect the odd URL.
+
+Seed files are matched to collections by filename, so they have to use the same
+naive plural: seed data for `Category` belongs in `seeds/categorys.json`. Name
+it `categories.json` and it still loads, but into a separate `categories`
+collection that no model feeds, leaving `/categorys` with nothing but randomly
+generated records.
+
+### The built-in faker patterns are crude
+
+With no `customPatterns` configured, a `String` field is matched by
+**case-sensitive substring**, first hit wins: `name`, then `email`, then
+`title`, otherwise a lorem sentence. `DateTime` is matched the same way on
+`create` and `update`. That is the whole of it, so it misfires in both
+directions:
+
+| Field | Generated value | Why |
+|-------|-----------------|-----|
+| `name` | `"Lawson"` | a person's first name, as intended |
+| `filename` | `"Alexane"` | also a person's first name, because it contains `name` |
+| `firstName` | `"Contra amitto tantum minus..."` | lorem, because `Name` is not `name` |
+| `Email` | `"Vae antiquus vulnus certus..."` | lorem, for the same reason |
+| `title` | `"Supervisor"` | a job type, which is not what most `title` fields hold |
+| `jobTitle` | `"Bis spes aperte eos tondeo..."` | lorem |
+
+Relations are not made consistent either. Every `Int` field, foreign keys
+included, gets an independent random integer, so `Post.authorId` will not match
+the `id` of any generated `User` and nested lookups on the running API return
+nothing. Use seed data if you need relations that actually resolve.
 
 ---
 

@@ -1,4 +1,3 @@
-import { parseEnvValue, getDMMF } from '@prisma/internals';
 import type { DMMF as PrismaDMMF } from '@prisma/generator-helper';
 import { EnvValue, GeneratorOptions } from '@prisma/generator-helper';
 import { promises as fs } from 'fs';
@@ -9,6 +8,27 @@ import removeDir from './utils/removeDir';
 import { configSchema, externalConfigSchema, ExternalConfig } from './config';
 import { DefaultAdapter, Item, ModelsPlural } from './types';
 import { generateRandomNumber } from './helpers';
+
+/**
+ * Resolves a schema value that may be written as `env("SOME_VAR")`.
+ *
+ * Inlined from `@prisma/internals`. That package is a private implementation
+ * detail of the Prisma CLI: it is pinned to a single Prisma major and ships its
+ * own schema parser, so depending on it from a generator drags a second,
+ * mismatched copy of Prisma into the user's project.
+ */
+function parseEnvValue(object: EnvValue): string {
+  if (object.fromEnvVar && object.fromEnvVar !== 'null') {
+    const value = process.env[object.fromEnvVar];
+    if (!value) {
+      throw new Error(
+        `Attempted to load provider value using \`env(${object.fromEnvVar})\` but it was not present. Please ensure that ${object.fromEnvVar} is present in your Environment Variables`,
+      );
+    }
+    return value;
+  }
+  return object.value as string;
+}
 
 export async function generate(options: GeneratorOptions) {
   const outputDir = parseEnvValue(options.generator.output as EnvValue);
@@ -36,14 +56,11 @@ export async function generate(options: GeneratorOptions) {
   await fs.mkdir(outputDir, { recursive: true });
   await removeDir(outputDir, true);
 
-  const prismaClientProvider = options.otherGenerators.find(
-    (it) => parseEnvValue(it.provider) === 'prisma-client-js',
-  );
-
-  const prismaClientDmmf = await getDMMF({
-    datamodel: options.datamodel,
-    previewFeatures: prismaClientProvider?.previewFeatures,
-  });
+  // Prisma has already parsed and validated the schema before it invokes a
+  // generator, and it hands the result over as `options.dmmf`. Re-parsing
+  // `options.datamodel` ourselves only reintroduced a second parser that has to
+  // agree with the CLI's, which it eventually did not.
+  const prismaClientDmmf: PrismaDMMF.Document = options.dmmf;
 
   // Use external config filename if available, fallback to generator config
   const outputFileName = externalConfig.outputFileName || config.outputFileName;

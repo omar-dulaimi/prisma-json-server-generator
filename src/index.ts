@@ -5,7 +5,6 @@ generatorHandler({
   onManifest: () => ({
     defaultOutput: './generated',
     prettyName: 'Prisma JSON Server Generator',
-    requiresGenerators: ['prisma-client-js'],
   }),
   onGenerate: generate,
 });
