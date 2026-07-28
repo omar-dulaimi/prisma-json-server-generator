@@ -201,26 +201,47 @@ jobs:
             console.log("db.json ok:", keys.map((k) => k + "=" + db[k].length).join(" "));
           '
 
+      - name: Install json-server
+        working-directory: ${{ runner.temp }}/consumer
+        # Installed as its own step rather than via `npx --yes` at run time. Downloading it inside
+        # the serve step spent the readiness budget on the download, so the wait expired before the
+        # server ever started.
+        run: npm install --no-audit --no-fund --no-save json-server@0.17.4
+
       - name: Assert json-server can actually serve it
         working-directory: ${{ runner.temp }}/consumer
-        # The README's promise is "a full CRUD REST API in two commands", and the second command
-        # is json-server. Emitting a plausible-looking file is not the same as emitting one
-        # json-server accepts, so serve it and make a real request.
+        # The README's promise is "a full CRUD REST API in two commands", and the second command is
+        # json-server. Emitting a plausible-looking file is not the same as emitting one json-server
+        # accepts, so serve it and make a real request.
         run: |
           set -euo pipefail
-          npx --yes json-server@0.17.4 --watch prisma/generated/db.json --port 3123 &
+          ./node_modules/.bin/json-server --watch prisma/generated/db.json --port 3123 > server.log 2>&1 &
           server=$!
           trap 'kill "$server" 2>/dev/null || true' EXIT
-          for _ in $(seq 1 30); do
-            if curl -sf http://127.0.0.1:3123/users > /dev/null; then break; fi
+
+          ready=""
+          for _ in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:3123/users > /dev/null 2>&1; then ready=1; break; fi
+            # Fail fast and loudly if the server died, instead of waiting out the whole budget.
+            if ! kill -0 "$server" 2>/dev/null; then
+              echo "::error::json-server exited before becoming ready"
+              cat server.log
+              exit 1
+            fi
             sleep 1
           done
-          curl -sf http://127.0.0.1:3123/users | node -e '
-            let raw = "";
-            process.stdin.on("data", (d) => (raw += d));
-            process.stdin.on("end", () => {
-              const users = JSON.parse(raw);
-              if (!Array.isArray(users) || users.length === 0) throw new Error("GET /users returned nothing");
-              console.log("json-server served " + users.length + " users, first id " + users[0].id);
-            });
+          # Without this the loop could expire silently and the request below would parse an empty
+          # body, reporting a confusing JSON error instead of "the server never came up".
+          if [ -z "$ready" ]; then
+            echo "::error::json-server did not answer on port 3123 within 60s"
+            cat server.log
+            exit 1
+          fi
+
+          curl -sf http://127.0.0.1:3123/users > users.json
+          node -e '
+            const users = require("./users.json");
+            if (!Array.isArray(users) || users.length === 0) throw new Error("GET /users returned nothing");
+            if (users[0].id === undefined) throw new Error("served users have no id");
+            console.log("json-server served " + users.length + " users, first id " + users[0].id);
           '
